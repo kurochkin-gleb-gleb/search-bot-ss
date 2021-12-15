@@ -1,0 +1,27 @@
+start: |
+  <strong>HimeraSearchExcelBot</strong> — бот для поиска номеров через HimeraSearch
+
+feedback: |-
+  telegram: @dam_mek
+
+about:
+  Вы закидываете excel файл и выбираете поиск по фио+др (или по паспорту или по инн или по снилс) и в каждую строчку таблицы вписывается телефон.
+
+help:
+  Используйте дополнительную клавиатуру
+
+searching:
+  start: Выберите, по каким данным искать
+  end: Отправьте файл
+  wait: Пожалуйста, подождите несколько минут, пока идёт поиск
+
+check limit: |
+  Количество оставшихся заспросов: {limit}
+
+cancel handler:
+  no state: There is no operation
+  state was cleared: All right! Operation aborted
+
+error: |
+  Позникла ошибка: *{error}*
+  Используйте команду /feedback для помощи

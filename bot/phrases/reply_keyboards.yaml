@@ -1,0 +1,13 @@
+menu:
+  name: Поиск по ФИО и ДР
+  check limit: Проверить лимиты
+
+legacy menu:
+  name: По ФИО и ДР
+  passport: По паспортным данным
+  inn: По ИНН
+  snils: По СНИЛС
+  check limit: Проверить лимиты
+
+cancel:
+  - Отменить действие
