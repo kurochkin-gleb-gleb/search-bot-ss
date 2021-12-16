@@ -17,6 +17,7 @@ def register_handlers(dp: Dispatcher):
                                 state='*')
     register_handlers_searching(dp)
     dp.register_message_handler(feedback_message, commands=['feedback'])
+    dp.register_message_handler(about_message, commands=['about'])
     dp.register_message_handler(help_message)
 
 
@@ -43,6 +44,10 @@ async def cancel_handler(message: types.Message, state: FSMContext):
 
 async def feedback_message(message: types.Message):
     await message.answer(bot_responses['feedback'])
+
+
+async def about_message(message: types.Message):
+    await message.answer(bot_responses['about'])
 
 
 async def help_message(message: types.Message):

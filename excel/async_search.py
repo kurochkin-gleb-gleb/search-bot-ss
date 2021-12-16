@@ -26,7 +26,7 @@ def parse_excel(sheet):
 
 
 def load_excel(file_name):
-    print(file_name)
+    # print(file_name)
     excel = openpyxl.load_workbook(file_name)
     sheet = excel.active
     return excel, sheet, parse_excel(sheet)
@@ -63,8 +63,9 @@ async def get_number(responses, session):
                     phone_numbers[var] = number
                 # print(var, number)
         print('Статистика:', len(phone_numbers), len(responses))
+        yield 'statistics', len(phone_numbers), len(responses)
     phone_numbers[None] = {}
-    return phone_numbers
+    yield 'result', phone_numbers
 
 
 async def search_by_inn(file_name):
@@ -79,9 +80,9 @@ async def search_by_inn(file_name):
         responses = []
         for response, inn in await asyncio.gather(*tasks):
             responses.append((response['query_id'], inn))
-        print('1')
+        # print('1')
         inn_to_number = await get_number(responses, session)
-    print(inn_to_number)
+    # print(inn_to_number)
 
     name_to_column = {}
     for name in list(inn_to_number.values()):
@@ -116,9 +117,9 @@ async def search_by_passport(file_name):
         responses = []
         for response, passport in await asyncio.gather(*tasks):
             responses.append((response['query_id'], passport))
-        print('1')
+        # print('1')
         passport_to_number = await get_number(responses, session)
-    print(passport_to_number)
+    # print(passport_to_number)
 
     name_to_column = {}
     for name in list(passport_to_number.values()):
@@ -153,11 +154,11 @@ async def search_by_snils(file_name):
             tasks.append(asyncio.ensure_future(async_himera.search_by_snils(person['снилс'], session)))
         responses = []
         for response, snils in await asyncio.gather(*tasks):
-            print(response)
+            # print(response)
             responses.append((response['query_id'], snils))
-        print('1')
+        # print('1')
         snils_to_number = await get_number(responses, session)
-    print(snils_to_number)
+    # print(snils_to_number)
 
     name_to_column = {}
     for name in list(snils_to_number.values()):
@@ -167,13 +168,13 @@ async def search_by_snils(file_name):
             sheet.cell(row=1, column=sheet.max_column + 1).value = n
             name_to_column[n] = sheet.max_column
         break
-    print(name_to_column)
+    # print(name_to_column)
     rows = sheet.rows
     columns_name = [col.value for col in next(rows)]
     for row in rows:
         person = parse_row(row, columns_name)
         for name, column in name_to_column.items():
-            print(snils_to_number.get(person['снилс']))
+            # print(snils_to_number.get(person['снилс']))
             row[column-1].value = snils_to_number.get(person['снилс']).get(name)
 
     return save_excel(excel, file_name)
@@ -207,7 +208,13 @@ async def search_by_name(file_name):
         responses = []
         for response, full_name in await asyncio.gather(*tasks):
             responses.append((response['query_id'], full_name))
-        name_to_number = await get_number(responses, session)
+        async for statistics in get_number(responses, session):
+            if statistics[0] == 'statistics':
+                yield statistics
+            else:
+                name_to_number = statistics[1]
+                break
+
     #     with open('aa.json', 'w', encoding='utf-8') as f:
     #         f.write(json.dumps(name_to_number))
     # print(name_to_number)
@@ -254,7 +261,7 @@ async def search_by_name(file_name):
     name_to_number_list = dict()
     for name, number in name_to_number.items():
         name_to_number_list[name] = [used.get(name).get(number_column_name) for number_column_name in number_columns_name if used.get(name) is not None]
-        name_to_number_list[name] = list(filter(lambda x: len(x) == 10 and x[0] == '9' and x is not None, name_to_number_list[name]))
+        name_to_number_list[name] = list(filter(lambda x: x is not None and len(x) == 10 and x[0] == '9', name_to_number_list[name]))
         # print(name, number, name_to_number_list[name])
     # print()
 
@@ -280,4 +287,4 @@ async def search_by_name(file_name):
         #     row[name_to_column[name] - 1].value = this_number
 
     print('FINAL')
-    return save_excel(excel, file_name)
+    yield 'result', save_excel(excel, file_name)
