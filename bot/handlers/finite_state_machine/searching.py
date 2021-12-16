@@ -80,9 +80,10 @@ async def work_with_excel(path, bot_message):
             new_text = bot_responses['searching']['statistics'].format(
                 number=statistics[1], all_number=statistics[2]
             )
+            new_text += '.'*salt
             if bot_message.text == new_text:
-                new_text += '.'*salt
                 salt = (salt + 1) % 4
+                new_text += '.'
             bot_message = await bot_message.edit_text(new_text)
         else:
             document = statistics[1]
