@@ -52,7 +52,7 @@ server = Flask(__name__)
 async def getMessage():
     print(request.stream.read().decode('utf-8'))
     # await dp.process_updates(request.stream.read().decode('utf-8'))
-    await dp.process_updates(bot.get_updates())
+    await dp.process_updates(await bot.get_updates())
     return 'Ну типа Химер запущен', 200
 
 
