@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import json
 
 import aiohttp
 import openpyxl
@@ -49,7 +48,6 @@ async def get_number(responses, session):
         for res_view, var in await asyncio.gather(*tasks):
             if var in phone_numbers:
                 continue
-            # print(var, res_view)
             if 'error' in res_view:
                 phone_numbers[var] = {None: None}
             if 'status' in res_view and res_view['status'] == 'ok':
@@ -61,7 +59,6 @@ async def get_number(responses, session):
                         if 'ТЕЛЕФОН' in base and var.startswith(base['ИМЯ'].replace(' ', '')):
                             number[base['БАЗА']] = base['ТЕЛЕФОН']
                     phone_numbers[var] = number
-                # print(var, number)
         print('Статистика:', len(phone_numbers), len(responses))
         yield 'statistics', len(phone_numbers), len(responses)
     phone_numbers[None] = {}
@@ -215,10 +212,6 @@ async def search_by_name(file_name):
                 name_to_number = statistics[1]
                 break
 
-    #     with open('aa.json', 'w', encoding='utf-8') as f:
-    #         f.write(json.dumps(name_to_number))
-    # print(name_to_number)
-
     number_columns_name = []
     for name, number in name_to_number.items():
         if None in number:
@@ -227,12 +220,7 @@ async def search_by_name(file_name):
             if n in number_columns_name:
                 continue
             number_columns_name.append(n)
-        # print(name, number)
-    # print()
-    # print(number_columns_name)
     number_columns_name.sort(reverse=True, key=lambda x: int(next(filter(lambda y: len(y) == 4 and y.isdigit(), x.split() + ['2000']))))
-    # print(number_columns_name)
-    # print()
 
     used = dict()
     needed_columns = set()
@@ -260,10 +248,10 @@ async def search_by_name(file_name):
 
     name_to_number_list = dict()
     for name, number in name_to_number.items():
-        name_to_number_list[name] = [used.get(name).get(number_column_name) for number_column_name in number_columns_name if used.get(name) is not None]
-        name_to_number_list[name] = list(filter(lambda x: x is not None and len(x) == 10 and x[0] == '9', name_to_number_list[name]))
-        # print(name, number, name_to_number_list[name])
-    # print()
+        name_to_number_list[name] = [used.get(name).get(number_column_name)
+                                     for number_column_name in number_columns_name if used.get(name) is not None]
+        name_to_number_list[name] = list(filter(lambda x: x is not None and len(x) == 10 and x[0] == '9',
+                                                name_to_number_list[name]))
 
     max_column = sheet.max_column
     # for i in range(max(map(len, name_to_number_list.values()))):
@@ -283,8 +271,6 @@ async def search_by_name(file_name):
             if i == 3:
                 break
             row[max_column + i].value = number
-        # for name, this_number in used[full_name]:
-        #     row[name_to_column[name] - 1].value = this_number
 
     print('FINAL')
     yield 'result', save_excel(excel, file_name)

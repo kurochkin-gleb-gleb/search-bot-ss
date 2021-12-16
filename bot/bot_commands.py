@@ -9,5 +9,4 @@ async def set_commands(dp: Dispatcher):
         types.BotCommand(command=f'{command}', description=commands[command])
         for command in commands
     ]
-    print(commands)
     await dp.bot.set_my_commands(commands)

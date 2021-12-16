@@ -1,9 +1,10 @@
-from bot.bot import bot
 from typing import List
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+
 from bot import reply_keyboards
+from bot.bot import bot
 from bot.messages import bot_responses
 
 

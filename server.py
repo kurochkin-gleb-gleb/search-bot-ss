@@ -3,10 +3,8 @@ import logging
 import os
 from urllib.parse import urljoin
 
-from aiogram import Dispatcher, executor, types, Bot
+from aiogram import Dispatcher, types, Bot
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.webhook import get_new_configured_app
-from aiohttp import web
 from flask import Flask, request
 
 from bot.bot import bot
@@ -21,14 +19,14 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 dp.middleware.setup(PrintMiddleware())
 register_handlers(dp)
 
-PROJECT_NAME = os.getenv('PROJECT_NAME')  # Set it as you've set TOKEN env var
+PROJECT_NAME = os.getenv('PROJECT_NAME')
 
-WEBHOOK_HOST = f'https://{PROJECT_NAME}.herokuapp.com/'  # Enter here your link from Heroku project settings
+WEBHOOK_HOST = f'https://{PROJECT_NAME}.herokuapp.com/'
 WEBHOOK_URL_PATH = f'/webhook/{HIMERA_TOKEN_BOT}'
 WEBHOOK_URL = urljoin(WEBHOOK_HOST, WEBHOOK_URL_PATH)
 
 
-async def on_startup(app_):
+async def on_startup():
     await bot.delete_webhook()
     await bot.set_webhook(WEBHOOK_URL)
     await set_commands(dp)
@@ -38,36 +36,24 @@ async def shutdown():
     await dp.storage.close()
     await dp.storage.wait_closed()
 
-
-# if __name__ == '__main__':
-#     app = get_new_configured_app(dispatcher=dp, path=WEBHOOK_URL_PATH)
-#     app.on_startup.append(on_startup)
-#     app.on_shutdown.append(shutdown)
-#     print('les go')
-#     web.run_app(app, host='0.0.0.0', port=os.getenv('PORT'))
-
 server = Flask(__name__)
 
 
 @server.route(WEBHOOK_URL_PATH, methods=['POST'])
 async def getMessage():
     req = request.stream.read().decode('utf-8')
-    print(req)
     update = json.loads(req)
-    print(update)
     update = types.Update(**update)
-    print(update)
     Dispatcher.set_current(dp)
     Bot.set_current(dp.bot)
     await dp.process_update(update)
     print('okey'*5)
-    # await dp.process_updates(await bot.get_updates())
     return 'Ну типа Химер запущен', 200
 
 
 @server.route('/')
 async def webhook():
-    await on_startup(None)
+    await on_startup()
     return 'Ну типа Химер запущен, а я нужен для вебхука', 200
 
 
