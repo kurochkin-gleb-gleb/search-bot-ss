@@ -51,8 +51,9 @@ server = Flask(__name__)
 
 @server.route(WEBHOOK_URL_PATH, methods=['POST'])
 async def getMessage():
-    print(request.stream.read().decode('utf-8'))
-    update_id = json.loads(request.stream.read().decode('utf-8'))['update_id']
+    req = request.stream.read().decode('utf-8')
+    print(req)
+    update_id = json.loads(req)['update_id']
     print(update_id)
     update = types.update.Update(update_id=update_id)
     print(update)
@@ -60,8 +61,7 @@ async def getMessage():
     print('okey'*5)
     # await dp.process_updates(await bot.get_updates())
     return 'Ну типа Химер запущен', 200
-# {"update_id":630215216,
-# "message":{"message_id":69,"from":{"id":285942176,"is_bot":false,"first_name":"dam_mek","username":"dam_mek","language_code":"ru"},"chat":{"id":285942176,"first_name":"dam_mek","username":"dam_mek","type":"private"},"date":1639663998,"text":"\u041f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c \u043b\u0438\u043c\u0438\u0442\u044b"}}
+
 
 @server.route('/')
 async def webhook():
