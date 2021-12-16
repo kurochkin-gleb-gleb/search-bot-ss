@@ -29,7 +29,7 @@ WEBHOOK_URL = urljoin(WEBHOOK_HOST, WEBHOOK_URL_PATH)
 
 async def on_startup(app_):
     await bot.delete_webhook()
-    await bot.set_webhook(WEBHOOK_URL)
+    # await bot.set_webhook(WEBHOOK_URL)
     await set_commands(dp)
 
 
