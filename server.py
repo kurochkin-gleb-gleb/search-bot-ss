@@ -55,7 +55,7 @@ async def getMessage():
     print(req)
     update = json.loads(req)
     print(update)
-    update = types.update.Update(update)
+    update = types.Update(**update)
     print(update)
     await dp.process_update(update)
     print('okey'*5)
