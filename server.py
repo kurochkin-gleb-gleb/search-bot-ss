@@ -53,9 +53,9 @@ server = Flask(__name__)
 async def getMessage():
     req = request.stream.read().decode('utf-8')
     print(req)
-    update_id = json.loads(req)['update_id']
-    print(update_id)
-    update = types.update.Update(update_id=update_id)
+    update = json.loads(req)['update_id']
+    print(update)
+    update = types.update.Update(*update)
     print(update)
     await dp.process_update(update)
     print('okey'*5)
