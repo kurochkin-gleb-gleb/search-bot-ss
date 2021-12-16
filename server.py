@@ -53,7 +53,7 @@ server = Flask(__name__)
 async def getMessage():
     req = request.stream.read().decode('utf-8')
     print(req)
-    update = json.loads(req)['update_id']
+    update = json.loads(req)
     print(update)
     update = types.update.Update(*update)
     print(update)
