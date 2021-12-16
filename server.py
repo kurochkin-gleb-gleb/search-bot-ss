@@ -50,7 +50,9 @@ server = Flask(__name__)
 
 @server.route(WEBHOOK_URL_PATH, methods=['POST'])
 async def getMessage():
-    await dp.process_updates(request.stream.read().decode('utf-8'))
+    print(request.stream.read().decode('utf-8'))
+    # await dp.process_updates(request.stream.read().decode('utf-8'))
+    await dp.process_updates(bot.get_updates())
     return 'Ну типа Химер запущен', 200
 
 
