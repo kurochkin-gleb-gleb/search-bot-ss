@@ -6,6 +6,7 @@ from aiogram import Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.webhook import get_new_configured_app
 from aiohttp import web
+from flask import Flask, request
 
 from bot.bot import bot
 from bot.bot_commands import set_commands
@@ -32,12 +33,32 @@ async def on_startup(app_):
     await set_commands(dp)
 
 
-async def shutdown(dispatcher: Dispatcher):
-    await dispatcher.storage.close()
-    await dispatcher.storage.wait_closed()
+async def shutdown():
+    await dp.storage.close()
+    await dp.storage.wait_closed()
+
+
+# if __name__ == '__main__':
+#     app = get_new_configured_app(dispatcher=dp, path=WEBHOOK_URL_PATH)
+#     app.on_startup.append(on_startup)
+#     app.on_shutdown.append(shutdown)
+#     print('les go')
+#     web.run_app(app, host='0.0.0.0', port=os.getenv('PORT'))
+
+server = Flask(__name__)
+
+
+@server.route(WEBHOOK_URL_PATH, methods=['POST'])
+async def getMessage():
+    await dp.process_updates(request.stream.read().decode('utf-8'))
+    return 'Ну типа Химер запущен', 200
+
+
+@server.route('/')
+async def webhook():
+    await on_startup(None)
+    return 'Ну типа Химер запущен, а я нужен для вебхука', 200
+
 
 if __name__ == '__main__':
-    app = get_new_configured_app(dispatcher=dp, path=WEBHOOK_URL_PATH)
-    app.on_startup.append(on_startup)
-    print('les go')
-    web.run_app(app, host='0.0.0.0', port=os.getenv('PORT'))
+    server.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))

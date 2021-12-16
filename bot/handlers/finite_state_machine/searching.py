@@ -39,19 +39,7 @@ async def process_document(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if data.get('type') == reply_keyboard_texts['menu']['name']:
         try:
-            salt = 1
-            async for statistics in search_by_name(path):
-                if statistics[0] == 'statistics':
-                    new_text = bot_responses['searching']['statistics'].format(
-                        number=statistics[1], all_number=statistics[2]
-                    )
-                    if bot_message.text == new_text:
-                        new_text += '.'*salt
-                        salt = (salt + 1) % 4
-                    bot_message = await bot_message.edit_text(new_text)
-                else:
-                    document = statistics[1]
-                    break
+            document = await work_with_excel(path, bot_message)
         except exceptions.NotCorrectColumnType as err:
             await process_error(err, message, state)
             return
@@ -83,6 +71,22 @@ async def process_cancel(message: types.Message, state: FSMContext):
     # data = await state.get_data()
     # await delete_messages(message.chat.id, data['message_ids'] + [message.message_id])
     await state.finish()
+
+
+async def work_with_excel(path, bot_message):
+    salt = 1
+    async for statistics in search_by_name(path):
+        if statistics[0] == 'statistics':
+            new_text = bot_responses['searching']['statistics'].format(
+                number=statistics[1], all_number=statistics[2]
+            )
+            if bot_message.text == new_text:
+                new_text += '.'*salt
+                salt = (salt + 1) % 4
+            bot_message = await bot_message.edit_text(new_text)
+        else:
+            document = statistics[1]
+            return document
 
 
 def register_handlers_searching(dp: Dispatcher):
