@@ -3,7 +3,7 @@ import logging
 import os
 from urllib.parse import urljoin
 
-from aiogram import Dispatcher, executor, types
+from aiogram import Dispatcher, executor, types, Bot
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.webhook import get_new_configured_app
 from aiohttp import web
@@ -57,6 +57,8 @@ async def getMessage():
     print(update)
     update = types.Update(**update)
     print(update)
+    Bot.set_current(dp.bot)
+    Dispatcher.set_current(dp)
     await dp.process_update(update)
     print('okey'*5)
     # await dp.process_updates(await bot.get_updates())
