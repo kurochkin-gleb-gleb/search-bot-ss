@@ -12,6 +12,7 @@ from bot.bot_commands import set_commands
 from bot.handlers.handlers import register_handlers
 from bot.middlewares import PrintMiddleware
 from config import HIMERA_TOKEN_BOT
+from bot.handlers.utils import process_error
 
 logging.basicConfig(level=logging.INFO)
 
@@ -46,7 +47,12 @@ async def getMessage():
     update = types.Update(**update)
     Dispatcher.set_current(dp)
     Bot.set_current(dp.bot)
-    await dp.process_update(update)
+    try:
+        await dp.process_update(update)
+    except RuntimeError as err:
+        await process_error(err, update.message)
+    except OSError as err:
+        await process_error(err, update.message)
     print('okey'*5)
     return 'Ну типа Химер запущен', 200
 

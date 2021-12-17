@@ -13,8 +13,9 @@ async def delete_messages(chat_id: int, message_ids: List[int]):
         await bot.delete_message(chat_id, message_id)
 
 
-async def process_error(error, message: types.Message, state: FSMContext):
+async def process_error(error, message: types.Message, state: FSMContext = None):
     await message.answer(text=bot_responses['error'].format(error=error),
                          reply_markup=reply_keyboards.menu,
                          parse_mode='Markdown')
-    await state.finish()
+    if state is not None:
+        await state.finish()
