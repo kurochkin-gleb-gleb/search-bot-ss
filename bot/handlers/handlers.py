@@ -47,7 +47,7 @@ async def feedback_message(message: types.Message):
 
 
 async def about_message(message: types.Message):
-    await message.answer(bot_responses['about'])
+    await message.answer(bot_responses['about'], reply_markup=reply_keyboards.menu)
 
 
 async def help_message(message: types.Message):
