@@ -64,8 +64,8 @@ async def process_document(message: types.Message, state: FSMContext):
     new_file_name = 'new' + file_name
     doc = types.InputFile(document, filename=new_file_name)
     await message.answer_document(doc, reply_markup=reply_keyboards.menu)
-    os.remove(f'./excel/documents/{file_name}.xlsx')
-    os.remove(f'./excel/documents/{new_file_name}.xlsx')
+    os.remove(f'./excel/documents/{file_name}')
+    os.remove(f'./excel/documents/{new_file_name}')
     # data = await state.get_data()
     # await delete_messages(message.chat.id, data['message_ids'] + [message.message_id])
     await state.finish()
