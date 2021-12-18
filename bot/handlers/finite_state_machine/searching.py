@@ -45,7 +45,7 @@ async def process_document(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if data.get('type') == reply_keyboard_texts['menu']['name']:
         try:
-            queue.enqueue(test_queue, message, 'WORKER WORKS')
+            queue.enqueue(test_queue, message.chat.id, 'WORKER WORKS')
             document = await work_with_excel(path, bot_message)
         except exceptions.NotCorrectColumnType as err:
             await process_error(err, message, state)
