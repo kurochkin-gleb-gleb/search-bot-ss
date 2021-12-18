@@ -11,8 +11,9 @@ from bot.handlers.utils import process_error
 from bot.messages import bot_responses
 from bot.reply_keyboards import reply_keyboard_texts
 from excel.async_search import search_by_name
-from server import queue
 from excel.test import test_queue
+from rq import Queue
+from worker import conn
 
 
 class Searching(StatesGroup):
@@ -29,6 +30,7 @@ async def process_type(message: types.Message, state: FSMContext):
 
 
 async def process_document(message: types.Message, state: FSMContext):
+    queue = Queue(connection=conn)
     document = message.document
     if document is None:
         await message.answer(bot_responses['searching']['end'], reply_markup=reply_keyboards.cancel)
