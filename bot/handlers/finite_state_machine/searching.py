@@ -32,10 +32,11 @@ async def process_document(message: types.Message, state: FSMContext):
     if document is None:
         await message.answer(bot_responses['searching']['end'], reply_markup=reply_keyboards.cancel)
         return
-    file_name = document.file_unique_id + '.xlsx'
+    file_name = document.file_id + '.xlsx'
     print(file_name)
     path = utils.get_path_to_excel_docs(file_name)
     await document.download(path)
+    print(path)
     bot_message_ = await message.answer(bot_responses['searching']['wait'], reply_markup=types.ReplyKeyboardRemove())
     bot_message = await message.answer(bot_responses['searching']['statistics'].format(
         number=0, all_number='...'

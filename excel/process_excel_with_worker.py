@@ -44,7 +44,7 @@ async def work_with_excel(bot_message, file_id):
     print(file.file_path)
     salt = 1
     text = bot_message['text']
-    async for statistics in search_by_name(file.file_path):
+    async for statistics in search_by_name(utils.get_path_to_excel_docs(file_id + '.xlsx')):
         if statistics[0] == 'statistics':
             new_text = bot_responses['searching']['statistics'].format(
                 number=statistics[1], all_number=statistics[2]
