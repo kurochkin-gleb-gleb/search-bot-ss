@@ -35,6 +35,7 @@ async def process_document(message: types.Message, state: FSMContext):
     file_name = document.file_unique_id + '.xlsx'
     print(file_name)
     path = utils.get_path_to_excel_docs(file_name)
+    await document.download(path)
     bot_message_ = await message.answer(bot_responses['searching']['wait'], reply_markup=types.ReplyKeyboardRemove())
     bot_message = await message.answer(bot_responses['searching']['statistics'].format(
         number=0, all_number='...'
@@ -44,7 +45,7 @@ async def process_document(message: types.Message, state: FSMContext):
         try:
             queue = Queue(connection=conn)
             queue.enqueue(process_excel_with_worker.process_document, bot_message.to_python(),
-                          bot_message_.to_python(), document.download(path))
+                          bot_message_.to_python(), document.file_id)
             await state.finish()
         except exceptions.NotCorrectColumnType as err:
             await process_error(err, message, state)

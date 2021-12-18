@@ -17,13 +17,13 @@ def test_queue(chat_id, text):
     loop.close()
 
 
-def process_document(bot_message, bot_message_, file_name):
+def process_document(bot_message, bot_message_, file_id):
     print('-'*30)
     print(bot_message)
     print('-'*30)
     loop = asyncio.new_event_loop()
-    document = loop.run_until_complete(work_with_excel(bot_message, file_name))
-    loop.run_until_complete(end_process(bot_message, bot_message_, file_name, document))
+    document = loop.run_until_complete(work_with_excel(bot_message, file_id))
+    loop.run_until_complete(end_process(bot_message, bot_message_, file_id, document))
 
 
 async def end_process(bot_message, bot_message_, file_name, document):
@@ -38,18 +38,13 @@ async def end_process(bot_message, bot_message_, file_name, document):
             os.remove(file)
 
 
-async def work_with_excel(bot_message, file_name):
-    await file_name
+async def work_with_excel(bot_message, file_id):
+    file = await bot.get_file(file_id)
+    print(file)
+    print(file.file_path)
     salt = 1
     text = bot_message['text']
-    while not os.path.exists(utils.get_path_to_excel_docs(file_name)):
-        print(utils.get_path_to_excel_docs(file_name))
-        print(utils.get_path_to_excel_docs(''))
-        print(os.listdir('./excel/'))
-        print()
-        await asyncio.sleep(1)
-    print(os.listdir(utils.get_path_to_excel_docs('')))
-    async for statistics in search_by_name(file_name):
+    async for statistics in search_by_name(file.file_path):
         if statistics[0] == 'statistics':
             new_text = bot_responses['searching']['statistics'].format(
                 number=statistics[1], all_number=statistics[2]

@@ -26,7 +26,8 @@ def parse_excel(sheet):
 
 
 def load_excel(file_name):
-    excel = openpyxl.load_workbook(utils.get_path_to_excel_docs(file_name))
+    excel = openpyxl.load_workbook(file_name)
+    # excel = openpyxl.load_workbook(utils.get_path_to_excel_docs(file_name))
     sheet = excel.active
     return excel, sheet, parse_excel(sheet)
 
