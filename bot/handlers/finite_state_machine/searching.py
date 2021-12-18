@@ -1,18 +1,16 @@
-import os
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from rq import Queue
 
 from bot import exceptions
 from bot import reply_keyboards
+from bot.handlers import utils
 from bot.handlers.utils import process_error
 from bot.messages import bot_responses
 from bot.reply_keyboards import reply_keyboard_texts
-from excel.async_search import search_by_name
-from excel.test import test_queue
-from rq import Queue
+from excel import process_excel_with_worker
 from worker import conn
 
 
@@ -30,13 +28,12 @@ async def process_type(message: types.Message, state: FSMContext):
 
 
 async def process_document(message: types.Message, state: FSMContext):
-    queue = Queue(connection=conn)
     document = message.document
     if document is None:
         await message.answer(bot_responses['searching']['end'], reply_markup=reply_keyboards.cancel)
         return
     file_name = document.file_unique_id
-    path = f'./excel/documents/{file_name}.xlsx'
+    path = utils.get_path_to_excel_docs(file_name + '.xlsx')
     await document.download(path)
     bot_message_ = await message.answer(bot_responses['searching']['wait'], reply_markup=types.ReplyKeyboardRemove())
     bot_message = await message.answer(bot_responses['searching']['statistics'].format(
@@ -45,8 +42,10 @@ async def process_document(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if data.get('type') == reply_keyboard_texts['menu']['name']:
         try:
-            queue.enqueue(test_queue, message.chat.id, 'WORKER WORKS')
-            document = await work_with_excel(path, bot_message)
+            queue = Queue(connection=conn)
+            queue.enqueue(process_excel_with_worker.process_document, bot_message.to_python(),
+                          bot_message_.to_python(), file_name)
+            await state.finish()
         except exceptions.NotCorrectColumnType as err:
             await process_error(err, message, state)
             return
@@ -54,41 +53,12 @@ async def process_document(message: types.Message, state: FSMContext):
         await process_error('Неизвестный тип данных', message, state)
         return
 
-    await bot_message_.delete()
-    await bot_message.delete()
-    new_file_name = 'new' + file_name
-    doc = types.InputFile(document, filename=new_file_name)
-    await message.answer_document(doc, reply_markup=reply_keyboards.menu)
-    for file in f'./excel/documents/{file_name}', f'./excel/documents/{new_file_name}':
-        if os.path.exists(file):
-            os.remove(file)
-    # data = await state.get_data()
-    # await delete_messages(message.chat.id, data['message_ids'] + [message.message_id])
-    await state.finish()
-
 
 async def process_cancel(message: types.Message, state: FSMContext):
     await message.answer('Ок', reply_markup=reply_keyboards.menu)
     # data = await state.get_data()
     # await delete_messages(message.chat.id, data['message_ids'] + [message.message_id])
     await state.finish()
-
-
-async def work_with_excel(path, bot_message):
-    salt = 1
-    async for statistics in search_by_name(path):
-        if statistics[0] == 'statistics':
-            new_text = bot_responses['searching']['statistics'].format(
-                number=statistics[1], all_number=statistics[2]
-            )
-            new_text += '.'*salt
-            if bot_message.text == new_text:
-                salt = (salt + 1) % 4
-                new_text += '.'
-            bot_message = await bot_message.edit_text(new_text)
-        else:
-            document = statistics[1]
-            return document
 
 
 def register_handlers_searching(dp: Dispatcher):

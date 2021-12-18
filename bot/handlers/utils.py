@@ -19,3 +19,11 @@ async def process_error(error, message: types.Message, state: FSMContext = None)
                          parse_mode='Markdown')
     if state is not None:
         await state.finish()
+
+
+def get_path_to_excel_docs(file_name):
+    return f'./excel/documents/{file_name}'
+
+
+def make_new_file_name(file_name):
+    return f'new{file_name}'

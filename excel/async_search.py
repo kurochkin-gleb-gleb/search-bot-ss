@@ -6,6 +6,7 @@ import openpyxl
 
 from bot.exceptions import NotCorrectColumnType
 from excel import async_himera
+from bot.handlers import utils
 
 
 def parse_row(row, columns_name):
@@ -25,15 +26,14 @@ def parse_excel(sheet):
 
 
 def load_excel(file_name):
-    excel = openpyxl.load_workbook(file_name)
+    excel = openpyxl.load_workbook(utils.get_path_to_excel_docs(file_name))
     sheet = excel.active
     return excel, sheet, parse_excel(sheet)
 
 
 def save_excel(excel, file_name):
-    *directory, new_file_name = file_name.split('/')
-    new_file_name = '/'.join(directory + ['new' + new_file_name])
-    excel.save(new_file_name)
+    new_file_name = utils.make_new_file_name(file_name)
+    excel.save(utils.get_path_to_excel_docs(new_file_name))
     return new_file_name
 
 
