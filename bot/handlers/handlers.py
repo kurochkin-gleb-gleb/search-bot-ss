@@ -7,6 +7,7 @@ from bot.handlers.finite_state_machine.searching import register_handlers_search
 from bot.messages import bot_responses
 from bot.reply_keyboards import reply_keyboard_texts
 from excel.async_himera import get_limit
+import os
 
 
 def register_handlers(dp: Dispatcher):
