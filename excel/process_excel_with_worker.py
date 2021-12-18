@@ -42,8 +42,8 @@ async def work_with_excel(bot_message, file_name):
     salt = 1
     text = bot_message['text']
     while not os.path.exists(utils.get_path_to_excel_docs(file_name)):
-        await asyncio.sleep(1)
         print(utils.get_path_to_excel_docs(file_name), utils.get_path_to_excel_docs(''), os.listdir(utils.get_path_to_excel_docs('')))
+        await asyncio.sleep(1)
     async for statistics in search_by_name(file_name):
         if statistics[0] == 'statistics':
             new_text = bot_responses['searching']['statistics'].format(
