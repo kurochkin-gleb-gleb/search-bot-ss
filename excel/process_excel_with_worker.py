@@ -38,11 +38,8 @@ async def end_process(bot_message, bot_message_, file_name, document):
             os.remove(file)
 
 
-async def work_with_excel(bot_message, document):
-    file_name = document.file_unique_id + '.xlsx'
-    print(file_name)
-    path = utils.get_path_to_excel_docs(file_name)
-    await document.download(path)
+async def work_with_excel(bot_message, file_name):
+    await file_name
     salt = 1
     text = bot_message['text']
     while not os.path.exists(utils.get_path_to_excel_docs(file_name)):
