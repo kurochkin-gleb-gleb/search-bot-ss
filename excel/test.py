@@ -3,7 +3,8 @@ import asyncio
 
 
 def test_queue(chat_id, text):
-    # await asyncio.sleep(1)
-    loop = asyncio.get_running_loop()
+    # await asyncio.sleep(40)
+    loop = asyncio.get_event_loop()
     loop.run_until_complete(bot.send_message(chat_id, text))
+    loop.close()
 
