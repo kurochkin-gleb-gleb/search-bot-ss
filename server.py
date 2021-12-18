@@ -6,15 +6,20 @@ from urllib.parse import urljoin
 from aiogram import Dispatcher, types, Bot
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from flask import Flask, request
+from rq import Queue
 
 from bot.bot import bot
 from bot.bot_commands import set_commands
 from bot.handlers.handlers import register_handlers
+from bot.handlers.utils import process_error
 from bot.middlewares import PrintMiddleware
 from config import HIMERA_TOKEN_BOT
-from bot.handlers.utils import process_error
+from worker import conn
 
 logging.basicConfig(level=logging.INFO)
+
+server = Flask(__name__)
+queue = Queue(connection=conn)
 
 dp = Dispatcher(bot, storage=MemoryStorage())
 dp.middleware.setup(PrintMiddleware())
@@ -36,8 +41,6 @@ async def on_startup():
 async def shutdown():
     await dp.storage.close()
     await dp.storage.wait_closed()
-
-server = Flask(__name__)
 
 
 @server.route(WEBHOOK_URL_PATH, methods=['POST'])

@@ -10,7 +10,9 @@ from bot import reply_keyboards
 from bot.handlers.utils import process_error
 from bot.messages import bot_responses
 from bot.reply_keyboards import reply_keyboard_texts
-from excel.async_search import search_by_inn, search_by_passport, search_by_snils, search_by_name
+from excel.async_search import search_by_name
+from server import queue
+from excel.test import test_queue
 
 
 class Searching(StatesGroup):
@@ -31,8 +33,8 @@ async def process_document(message: types.Message, state: FSMContext):
     if document is None:
         await message.answer(bot_responses['searching']['end'], reply_markup=reply_keyboards.cancel)
         return
-    file_name = document.file_name
-    path = f'./excel/documents/{document.file_unique_id}.xlsx'
+    file_name = document.file_unique_id
+    path = f'./excel/documents/{file_name}.xlsx'
     await document.download(path)
     bot_message_ = await message.answer(bot_responses['searching']['wait'], reply_markup=types.ReplyKeyboardRemove())
     bot_message = await message.answer(bot_responses['searching']['statistics'].format(
@@ -41,18 +43,9 @@ async def process_document(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if data.get('type') == reply_keyboard_texts['menu']['name']:
         try:
+            queue.enqueue(test_queue, message, 'WORKER WORKS')
             document = await work_with_excel(path, bot_message)
         except exceptions.NotCorrectColumnType as err:
-            await process_error(err, message, state)
-            return
-    elif data.get('type') == reply_keyboard_texts['menu']['passport']:
-        document = await search_by_passport(path)
-    elif data.get('type') == reply_keyboard_texts['menu']['inn']:
-        document = await search_by_inn(path)
-    elif data.get('type') == reply_keyboard_texts['menu']['snils']:
-        try:
-            document = await search_by_snils(path)
-        except exceptions.NotExistColumn as err:
             await process_error(err, message, state)
             return
     else:

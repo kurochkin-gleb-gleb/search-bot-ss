@@ -4,7 +4,7 @@ import datetime
 import aiohttp
 import openpyxl
 
-from bot.exceptions import NotCorrectColumnType, NotExistColumn
+from bot.exceptions import NotCorrectColumnType
 from excel import async_himera
 
 
@@ -25,7 +25,6 @@ def parse_excel(sheet):
 
 
 def load_excel(file_name):
-    # print(file_name)
     excel = openpyxl.load_workbook(file_name)
     sheet = excel.active
     return excel, sheet, parse_excel(sheet)
@@ -63,118 +62,6 @@ async def get_number(responses, session):
         yield 'statistics', len(phone_numbers), len(responses)
     phone_numbers[None] = {}
     yield 'result', phone_numbers
-
-
-async def search_by_inn(file_name):
-    excel, sheet, people = load_excel(file_name)
-
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for person in people:
-            if person['ИНН'] is None:
-                continue
-            tasks.append(asyncio.ensure_future(async_himera.search_by_inn(person['ИНН'], session)))
-        responses = []
-        for response, inn in await asyncio.gather(*tasks):
-            responses.append((response['query_id'], inn))
-        # print('1')
-        inn_to_number = await get_number(responses, session)
-    # print(inn_to_number)
-
-    name_to_column = {}
-    for name in list(inn_to_number.values()):
-        if None in name:
-            continue
-        for n in name:
-            sheet.cell(row=1, column=sheet.max_column + 1).value = n
-            name_to_column[n] = sheet.max_column
-        break
-
-    rows = sheet.rows
-    columns_name = [col.value for col in next(rows)]
-    for row in rows:
-        person = parse_row(row, columns_name)
-        for name, column in name_to_column.items():
-            row[column-1].value = inn_to_number.get(person['ИНН']).get(name)
-
-    return save_excel(excel, file_name)
-
-
-async def search_by_passport(file_name):
-    excel, sheet, people = load_excel(file_name)
-
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for person in people:
-            if person['Номер документа, удостоверяющего личность'] is None:
-                continue
-            tasks.append(asyncio.ensure_future(async_himera.search_by_passport(
-                person['Номер документа, удостоверяющего личность'], session
-            )))
-        responses = []
-        for response, passport in await asyncio.gather(*tasks):
-            responses.append((response['query_id'], passport))
-        # print('1')
-        passport_to_number = await get_number(responses, session)
-    # print(passport_to_number)
-
-    name_to_column = {}
-    for name in list(passport_to_number.values()):
-        if None in name:
-            continue
-        for n in name:
-            sheet.cell(row=1, column=sheet.max_column + 1).value = n
-            name_to_column[n] = sheet.max_column
-        break
-
-    rows = sheet.rows
-    columns_name = [col.value for col in next(rows)]
-    for row in rows:
-        person = parse_row(row, columns_name)
-        for name, column in name_to_column.items():
-            row[column-1].value = passport_to_number.get(person['Номер документа, удостоверяющего личность']).get(name)
-
-    return save_excel(excel, file_name)
-
-
-async def search_by_snils(file_name):
-    excel, sheet, people = load_excel(file_name)
-
-    if 'снилс' not in people[0]:
-        raise NotExistColumn('Колонка «снилс» отсутсвует в таблице')
-
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for person in people:
-            if person['снилс'] is None:
-                continue
-            tasks.append(asyncio.ensure_future(async_himera.search_by_snils(person['снилс'], session)))
-        responses = []
-        for response, snils in await asyncio.gather(*tasks):
-            # print(response)
-            responses.append((response['query_id'], snils))
-        # print('1')
-        snils_to_number = await get_number(responses, session)
-    # print(snils_to_number)
-
-    name_to_column = {}
-    for name in list(snils_to_number.values()):
-        if None in name:
-            continue
-        for n in name:
-            sheet.cell(row=1, column=sheet.max_column + 1).value = n
-            name_to_column[n] = sheet.max_column
-        break
-    # print(name_to_column)
-    rows = sheet.rows
-    columns_name = [col.value for col in next(rows)]
-    for row in rows:
-        person = parse_row(row, columns_name)
-        for name, column in name_to_column.items():
-            # print(snils_to_number.get(person['снилс']))
-            row[column-1].value = snils_to_number.get(person['снилс']).get(name)
-
-    return save_excel(excel, file_name)
 
 
 async def search_by_name(file_name):
