@@ -32,7 +32,7 @@ def process_document(bot_message, bot_message_, file_id):
 async def end_process(bot_message, bot_message_, file_name, document):
     await bot.delete_message(bot_message_['chat']['id'], bot_message_['message_id'])
     await bot.delete_message(bot_message['chat']['id'], bot_message['message_id'])
-    new_file_name = utils.make_new_file_name(file_name)
+    new_file_name = document.split('/')[-1]
     print(document, new_file_name)
     doc = types.InputFile(document, filename=new_file_name)
     await bot.send_document(bot_message['chat']['id'], doc, reply_markup=reply_keyboards.menu)
