@@ -45,16 +45,16 @@ async def work_with_excel(bot_message, file_id):
     file = await bot.get_file(file_id)
     file_name = file.file_unique_id + '.xlsx'
     async with aiohttp.ClientSession() as session:
-        url = f'https://api.telegram.org/file/bot{HIMERA_TOKEN_BOT}/{file.file_id}'
+        url = f'https://api.telegram.org/file/bot{HIMERA_TOKEN_BOT}/{file.file_path}'
         print(url)
         async with session.get(url) as response:
             print('='*40)
             print(response)
             print(os.listdir('./excel'))
-            if not os.path.exists('.excel/documents'):
+            if not os.path.exists('./excel/documents'):
                 print('making')
-                os.mkdir('.excel/documents')
-            print(os.path.exists('.excel/documents'))
+                os.mkdir('./excel/documents')
+            print(os.path.exists('./excel/documents'))
             print(os.listdir('./excel'))
             with open(f'.excel/documents/{file_name}', 'wb') as f:
                 f.write(await response.read())
