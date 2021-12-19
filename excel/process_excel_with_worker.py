@@ -56,7 +56,7 @@ async def work_with_excel(bot_message, file_id):
                 os.mkdir('./excel/documents')
             print(os.path.exists('./excel/documents'))
             print(os.listdir('./excel'))
-            with open(f'.excel/documents/{file_name}', 'wb') as f:
+            with open(f'./excel/documents/{file_name}', 'wb') as f:
                 f.write(await response.read())
     print(file)
     print(file.file_path)
