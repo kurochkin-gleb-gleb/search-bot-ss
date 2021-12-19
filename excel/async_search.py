@@ -45,7 +45,7 @@ def save_excel(excel, file_name):
 async def get_number(responses, session):
     phone_numbers = {}
     while len(phone_numbers) != len(responses):
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
         tasks = []
         for query_id, var in responses:
             tasks.append(asyncio.ensure_future(async_himera.view(query_id, session, var)))

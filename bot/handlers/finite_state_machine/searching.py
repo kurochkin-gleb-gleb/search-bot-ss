@@ -51,6 +51,9 @@ async def process_document(message: types.Message, state: FSMContext):
         except exceptions.NotCorrectColumnType as err:
             await process_error(err, message, state)
             return
+        except Exception as err:
+            await process_error(err, message, state)
+            return
     else:
         await process_error('Неизвестный тип данных', message, state)
         return
