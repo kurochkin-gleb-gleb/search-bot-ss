@@ -1,6 +1,5 @@
 import asyncio
 import aiohttp
-# import aiofiles
 import os
 
 from aiogram import types
@@ -25,8 +24,14 @@ def process_document(bot_message, bot_message_, file_id):
     print(bot_message)
     print('-'*30)
     loop = asyncio.new_event_loop()
-    document = loop.run_until_complete(work_with_excel(bot_message, file_id))
-    loop.run_until_complete(end_process(bot_message, bot_message_, file_id, document))
+    try:
+        document = loop.run_until_complete(work_with_excel(bot_message, file_id))
+        loop.run_until_complete(end_process(bot_message, bot_message_, file_id, document))
+    except Exception as err:
+        loop.run_until_complete(bot.send_message(bot_message['chat']['id'], bot_responses['error'].format(error=err),
+                                                 reply_markup=reply_keyboards.menu, parse_mode='Markdown'))
+    finally:
+        loop.close()
 
 
 async def end_process(bot_message, bot_message_, file_name, document):

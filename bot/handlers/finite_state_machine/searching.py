@@ -45,8 +45,8 @@ async def process_document(message: types.Message, state: FSMContext):
     if data.get('type') == reply_keyboard_texts['menu']['name']:
         try:
             queue = Queue(connection=conn)
-            queue.enqueue(process_excel_with_worker.process_document, bot_message.to_python(),
-                          bot_message_.to_python(), document.file_id)
+            queue.enqueue(process_excel_with_worker.process_document,
+                          args=(bot_message.to_python(), bot_message_.to_python(), document.file_id), job_timeout=60000)
             await state.finish()
         except exceptions.NotCorrectColumnType as err:
             await process_error(err, message, state)
