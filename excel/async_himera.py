@@ -69,7 +69,6 @@ async def search_by_name(lastname, firstname, middlename, day, month, year, sess
     deleted = [key for key in data if data[key] is None]
     for key in deleted:
         del data[key]
-    print(data)
     async with session.post(url, data=data) as response:
         return await response.json(), full_name
 

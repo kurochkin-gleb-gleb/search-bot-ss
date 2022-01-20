@@ -24,7 +24,7 @@ check limit: |
 
 cancel handler:
   no state: There is no operation
-  state was cleared: All right! Operation aborted
+  state was cleared: Окей
 
 error: |
   🔴Позникла ошибка🔴

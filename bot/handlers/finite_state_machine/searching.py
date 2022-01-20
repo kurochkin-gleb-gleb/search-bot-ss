@@ -20,10 +20,8 @@ class Searching(StatesGroup):
 
 
 async def process_type(message: types.Message, state: FSMContext):
-    bot_message = await message.answer(text=bot_responses['searching']['end'], reply_markup=reply_keyboards.cancel)
+    await message.answer(text=bot_responses['searching']['end'], reply_markup=reply_keyboards.cancel)
     await state.update_data(type=message.text)
-
-    await state.update_data(message_ids=[message.message_id, bot_message.message_id])
     await Searching.end.set()
 
 
@@ -32,12 +30,12 @@ async def process_document(message: types.Message, state: FSMContext):
     if document is None:
         await message.answer(bot_responses['searching']['end'], reply_markup=reply_keyboards.cancel)
         return
-    file_name = document.file_id + '.xlsx'
-    print(file_name)
-    path = utils.get_path_to_excel_docs(file_name)
-    await document.download(path)
-    print(path)
-    bot_message_ = await message.answer(bot_responses['searching']['wait'], reply_markup=types.ReplyKeyboardRemove())
+
+    file_name = f'{document.file_id}.xlsx'
+    file_path = utils.file_name_to_file_path(file_name)
+    await document.download(file_path)
+    bot_message_wait = await message.answer(bot_responses['searching']['wait'],
+                                            reply_markup=types.ReplyKeyboardRemove())
     bot_message = await message.answer(bot_responses['searching']['statistics'].format(
         number=0, all_number='...'
     ))
@@ -46,7 +44,8 @@ async def process_document(message: types.Message, state: FSMContext):
         try:
             queue = Queue(connection=conn)
             queue.enqueue(process_excel_with_worker.process_document,
-                          args=(bot_message.to_python(), bot_message_.to_python(), document.file_id), job_timeout=60000)
+                          args=(bot_message.to_python(), bot_message_wait.to_python(), document.file_id),
+                          job_timeout=21600)
             await state.finish()
         except exceptions.NotCorrectColumnType as err:
             await process_error(err, message, state)
@@ -60,9 +59,7 @@ async def process_document(message: types.Message, state: FSMContext):
 
 
 async def process_cancel(message: types.Message, state: FSMContext):
-    await message.answer('Ок', reply_markup=reply_keyboards.menu)
-    # data = await state.get_data()
-    # await delete_messages(message.chat.id, data['message_ids'] + [message.message_id])
+    await message.answer(bot_responses['cancel handler']['state was cleared'], reply_markup=reply_keyboards.menu)
     await state.finish()
 
 

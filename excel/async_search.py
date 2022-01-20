@@ -35,11 +35,11 @@ def load_excel(file_name):
 def save_excel(excel, file_name):
     print('*'*40)
     print(file_name)
-    new_file_name = utils.make_new_file_name(file_name.split('/')[-1])
-    excel.save(utils.get_path_to_excel_docs(new_file_name))
+    new_file_name = utils.get_new_file_name(file_name.split('/')[-1])
+    excel.save(utils.file_name_to_file_path(new_file_name))
     # excel.save(new_file_name)
-    print(utils.get_path_to_excel_docs(new_file_name))
-    return utils.get_path_to_excel_docs(new_file_name)
+    print(utils.file_name_to_file_path(new_file_name))
+    return utils.file_name_to_file_path(new_file_name)
 
 
 async def get_number(responses, session):

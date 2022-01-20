@@ -21,9 +21,9 @@ async def process_error(error, message: types.Message, state: FSMContext = None)
         await state.finish()
 
 
-def get_path_to_excel_docs(file_name):
+def file_name_to_file_path(file_name):
     return f'./excel/documents/{file_name}'
 
 
-def make_new_file_name(file_name):
+def get_new_file_name(file_name):
     return f'new{file_name}'
