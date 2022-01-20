@@ -96,6 +96,9 @@ async def search_by_name(file_name):
             )))
         responses = []
         for response, full_name in await asyncio.gather(*tasks):
+            if 'query_id' not in response:
+                print(response)
+                err = response[str(response)]
             responses.append((response['query_id'], full_name))
         async for statistics in get_number(responses, session):
             if statistics[0] == 'statistics':
