@@ -47,8 +47,9 @@ async def get_number(responses, session):
     while len(phone_numbers) != len(responses):
         await asyncio.sleep(5)
         tasks = []
-        for query_id, var in responses:
-            tasks.append(asyncio.ensure_future(async_himera.view(query_id, session, var)))
+        # for query_id, var in responses:
+        for var in responses:
+            tasks.append(asyncio.ensure_future(async_himera.view(responses[var], session, var)))
         for res_view, var in await asyncio.gather(*tasks):
             if var in phone_numbers:
                 continue
@@ -94,12 +95,13 @@ async def search_by_name(file_name):
                 session=session,
                 full_name=full_name,
             )))
-        responses = []
+        responses = {}  # []
         for response, full_name in await asyncio.gather(*tasks):
             if 'query_id' not in response:
                 print(response)
                 err = response[str(response)]
-            responses.append((response['query_id'], full_name))
+            # responses.append((response['query_id'], full_name))
+            responses[full_name] = response['query_id']
         async for statistics in get_number(responses, session):
             if statistics[0] == 'statistics':
                 yield statistics
